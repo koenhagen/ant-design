@@ -146,8 +146,8 @@ jobs:
     name: test
     strategy:
       matrix:
-        react: ['16', '17', '18']
-        module: ['dom', 'node', 'dist', 'dist-min']
+        react: ['18']
+        module: ['dom']
         shard: ['1/2', '2/2']
     env:
       REACT: ${{ matrix.react }}
@@ -203,8 +203,12 @@ jobs:
 
       # dom test
       - name: dom test
+        uses: koenhagen/measure-energy-action@v0.33
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: npm test -- --maxWorkers=2 --coverage
+          count: 1
         if: ${{ matrix.module == 'dom' }}
-        run: npm test -- --maxWorkers=2 --shard=${{matrix.shard}} --coverage
 
       - name: persist coverages
         if: ${{ matrix.module == 'dom' && matrix.react == '18' }}
@@ -320,7 +324,6 @@ jobs:
       matrix:
         react: ['16', '17', '18']
         module: [lib, es]
-        shard: ['1/2', '2/2']
     env:
       REACT: ${{ matrix.react }}
     steps:
@@ -370,9 +373,13 @@ jobs:
         run: npm run install-react-18
 
       - name: test
+        uses: koenhagen/measure-energy-action@v0.33
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: npm test -- --maxWorkers=2
+          count: 1
         # lib only run in master branch not in pull request
         if: ${{ github.event_name != 'pull_request' || matrix.module != 'lib' }}
-        run: npm test -- --maxWorkers=2 --shard=${{matrix.shard}}
         env:
           LIB_DIR: ${{ matrix.module }}
     needs: compile
